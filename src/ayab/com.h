@@ -62,6 +62,7 @@ enum AYAB_API {
   stopCmd_msgid = 0x2e,
   quitCmd_msgid = 0x2f,
   testRes_msgid = 0xe0,
+  unknown_msgId = 0xff,
   debug_msgid = 0x99
 };
 using AYAB_API_t = enum AYAB_API;

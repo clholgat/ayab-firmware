@@ -106,6 +106,7 @@ void Knitter::setUpInterrupt() {
  */
 void Knitter::isr() {
   // update machine state data
+  GlobalCom::sendMsg(unknown_msgId, "isr ");
   GlobalEncoders::encA_interrupt();
   m_position = GlobalEncoders::getPosition();
   m_direction = GlobalEncoders::getDirection();
@@ -203,6 +204,9 @@ bool Knitter::isReady() {
 }
 
 void Knitter::knit() {
+  char buff[20];
+  sprintf(buff, "knit %u", m_position);
+  GlobalCom::sendMsg(unknown_msgId, buff);
   if (m_firstRun) {
     m_firstRun = false;
     // TODO(who?): optimize delay for various Arduino models
@@ -222,6 +226,11 @@ void Knitter::knit() {
   }
   m_prevState = state;
 #else
+  if (true || m_continuousReportingEnabled) {
+    // send current position to GUI
+    indState(SUCCESS);
+  }
+
   // only act if there is an actual change of position
   if (m_sOldPosition == m_position) {
     return;
@@ -230,10 +239,7 @@ void Knitter::knit() {
   // store current carriage position for next call of this function
   m_sOldPosition = m_position;
 
-  if (m_continuousReportingEnabled) {
-    // send current position to GUI
-    indState(SUCCESS);
-  }
+  
 
   if (!calculatePixelAndSolenoid()) {
     // no valid/useful position calculated
@@ -255,6 +261,9 @@ void Knitter::knit() {
     // find the right byte from the currentLine array,
     // then read the appropriate Pixel(/Bit) for the current needle to set
     uint8_t currentByte = m_pixelToSet / 8U;
+    //char buff[20];
+    //sprintf(buff, " byte %u ", m_lineBuffer[currentByte]);
+    //GlobalCom::sendMsg(unknown_msgId, "finding pixel");
     bool pixelValue =
         bitRead(m_lineBuffer[currentByte], m_pixelToSet - (8U * currentByte));
     // write Pixel state to the appropriate needle
@@ -334,6 +343,7 @@ void Knitter::reqLine(uint8_t lineNumber) {
 }
 
 bool Knitter::calculatePixelAndSolenoid() {
+  GlobalCom::sendMsg(unknown_msgId, "calculate    ");
   uint8_t startOffset = 0;
   bool success = true;
 
@@ -391,6 +401,10 @@ bool Knitter::calculatePixelAndSolenoid() {
     success = false;
     break;
   }
+
+  char buff[20];
+  sprintf(buff, "Stuff %u things", m_pixelToSet);
+  GlobalCom::sendMsg(unknown_msgId, buff);
   return success;
 }
 
