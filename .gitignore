@@ -1,6 +1,9 @@
-build/
+build*
 .dep/
 *.o
 *.hex
 *.a
 .*/*
+*.pu
+html
+*.swp
