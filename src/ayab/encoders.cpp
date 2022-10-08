@@ -162,7 +162,7 @@ void Encoders::encA_rising() {
       m_carriage = Knit;
     } else if (m_carriage == NoCarriage) {
       m_carriage = detected_carriage;
-    } else if (m_carriage != detected_carriage && m_position > start_position) {
+    } else if (m_carriage != detected_carriage) {
       m_carriage = Garter;
 
       // Belt shift and start position were set when the first magnet passed
