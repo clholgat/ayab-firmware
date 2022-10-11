@@ -139,7 +139,7 @@ void Encoders::encA_rising() {
   // The garter carriage has a second set of magnets that are going to 
   // pass the sensor and will reset state incorrectly if allowed to
   // continue.
-  if (m_carriage == Garter) {
+  if (Garter == m_carriage) {
     return;
   }
 
@@ -162,7 +162,7 @@ void Encoders::encA_rising() {
       m_carriage = Knit;
     } else if (m_carriage == NoCarriage) {
       m_carriage = detected_carriage;
-    } else if (m_carriage != detected_carriage && m_position > start_position) {
+    } else if (m_carriage != detected_carriage) {
       m_carriage = Garter;
 
       // Belt shift and start position were set when the first magnet passed
@@ -193,6 +193,13 @@ void Encoders::encA_falling() {
     if (m_position > END_LEFT[m_machineType]) {
       m_position--;
     }
+  }
+
+  // The garter carriage has a second set of magnets that are going to 
+  // pass the sensor and will reset state incorrectly if allowed to
+  // continue.
+  if (Garter == m_carriage) {
+    return;
   }
 
   // In front of Right Hall Sensor?
