@@ -115,6 +115,7 @@ private:
   uint8_t m_stopNeedle;
   uint8_t *m_lineBuffer;
   bool m_continuousReportingEnabled;
+  uint8_t count;
 
   // current machine state
   uint8_t m_position;

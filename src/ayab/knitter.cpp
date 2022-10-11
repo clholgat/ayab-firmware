@@ -46,6 +46,7 @@ constexpr uint16_t UINT16_MAX = 0xFFFFU;
  * Initialize the solenoids as well as pins and interrupts.
  */
 void Knitter::init() {
+  pinMode(0, INPUT_PULLUP);
   pinMode(ENC_PIN_A, INPUT);
   pinMode(ENC_PIN_B, INPUT);
   pinMode(ENC_PIN_C, INPUT);
@@ -70,6 +71,7 @@ void Knitter::init() {
   m_stopNeedle = 0U;
   m_lineBuffer = nullptr;
   m_continuousReportingEnabled = false;
+  count = 0U;
 
   m_lineRequested = false;
   m_currentLineNumber = 0U;
@@ -307,13 +309,13 @@ Machine_t Knitter::getMachineType() {
 }
 
 uint8_t Knitter::getStartOffset(const Direction_t direction) {
-  if ((direction == NoDirection) || (direction >= NUM_DIRECTIONS) ||
+  /*if ((direction == NoDirection) || (direction >= NUM_DIRECTIONS) ||
       (m_carriage == NoCarriage) || (m_carriage >= NUM_CARRIAGES) ||
       (m_machineType == NoMachine) || (m_machineType >= NUM_MACHINES)) {
     // TODO(TP): return error state?
     return 0U;
-  }
-  return START_OFFSET[m_machineType][direction][m_carriage];
+  }*/
+  return START_OFFSET[m_machineType][direction][Garter];
 }
 
 bool Knitter::setNextLine(uint8_t lineNumber) {
@@ -358,6 +360,14 @@ bool Knitter::calculatePixelAndSolenoid() {
   // magic numbers from machine manual
   case Right:
     startOffset = getStartOffset(Left);
+
+    if (count % 10 == 0) {
+      char s[20];
+      snprintf(s, sizeof(s), "r p %d o %d e", m_position, startOffset);
+      GlobalCom::sendMsg(debug_msgid, s);
+      count = 0U;
+    }
+    count++;
     if (m_position >= startOffset) {
       m_pixelToSet = m_position - startOffset;
 
@@ -381,6 +391,13 @@ bool Knitter::calculatePixelAndSolenoid() {
 
   case Left:
     startOffset = getStartOffset(Right);
+    if (count % 10 == 0) {
+      char s[20];
+      snprintf(s, sizeof(s), "l p %d o %d e", m_position, startOffset);
+      GlobalCom::sendMsg(debug_msgid, s);
+      count = 0U;
+    }
+    count++;
     if (m_position <= (END_RIGHT[m_machineType] - startOffset)) {
       m_pixelToSet = m_position - startOffset;
 
